@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Гид по AirPods</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* iOS System Fonts */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F2F2F7; /* iOS System Gray 6 */
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Smooth Transitions */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* iOS Card Style */
+        .ios-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Navigation Circles */
+        .nav-circle {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        
+        .nav-circle.active {
+            background-color: #007AFF;
+            color: white;
+            transform: scale(1.15); /* Slightly larger active state */
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+            border-color: #007AFF;
+        }
+
+        .nav-circle.inactive {
+            background-color: white;
+            color: #8E8E93;
+            border: 1px solid #E5E5EA;
+        }
+
+        /* Tooltip Style */
+        .tooltip {
+            position: absolute;
+            top: 140%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background-color: rgba(30, 30, 30, 0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent rgba(30, 30, 30, 0.9) transparent;
+        }
+
+        /* Logic for displaying tooltip */
+        @media (hover: hover) {
+            .nav-circle-wrapper:hover .tooltip {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        .tooltip.show-mobile {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Expected Result Box */
+        .result-box {
+            background-color: #F2F8FF;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 122, 255, 0.1);
+        }
+        
+        .result-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #34C759;
+        }
+        
+        .pro-box::before {
+             background-color: #AF52DE; /* Purple for Pro */
+        }
+        
+        .pro-bg {
+             background-color: #FBF5FF;
+             border-color: rgba(175, 82, 222, 0.1);
+        }
+
+        /* Custom Animations */
+        @keyframes slideInRight {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .animate-slide {
+            animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Glassmorphism Header */
+        .glass-header {
+            background: rgba(242, 242, 247, 0.95);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+        
+        /* New Navigation Container Layout */
+        .nav-container {
+            display: flex;
+            justify-content: space-between; /* Distribute evenly */
+            align-items: center;
+            max-width: 380px; /* Limit width on tablets */
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        /* Connecting line behind buttons */
+        .nav-line {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: #E5E5EA;
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="text-gray-900 min-h-screen flex flex-col">
+
+    <!-- Clean Sticky Header -->
+    <header class="glass-header sticky top-0 z-50 pt-safe-top">
+        <div class="max-w-md mx-auto py-3 px-4">
+            <!-- Navigation -->
+            <div class="nav-container">
+                <!-- Connecting Line -->
+                <div class="nav-line"></div>
+                
+                <!-- Start Button -->
+                <div class="nav-circle-wrapper relative group cursor-pointer z-10" onclick="handleNavClick('intro', this)">
+                    <button id="btn-intro" class="nav-circle active w-11 h-11 rounded-full flex items-center justify-center font-bold text-lg bg-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                    </button>
+                    <div class="tooltip" id="tooltip-intro">Главная</div>
+                </div>
+
+                <!-- Step 1 -->
+                <div class="nav-circle-wrapper relative group cursor-pointer z-10" onclick="handleNavClick('step1', this)">
+                    <button id="btn-step1" class="nav-circle inactive w-11 h-11 rounded-full flex items-center justify-center font-bold text-base bg-white">1</button>
+                    <div class="tooltip" id="tooltip-step1">Подготовка</div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="nav-circle-wrapper relative group cursor-pointer z-10" onclick="handleNavClick('step2', this)">
+                    <button id="btn-step2" class="nav-circle inactive w-11 h-11 rounded-full flex items-center justify-center font-bold text-base bg-white">2</button>
+                    <div class="tooltip" id="tooltip-step2">Языки</div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="nav-circle-wrapper relative group cursor-pointer z-10" onclick="handleNavClick('step3', this)">
+                    <button id="btn-step3" class="nav-circle inactive w-11 h-11 rounded-full flex items-center justify-center font-bold text-base bg-white">3</button>
+                    <div class="tooltip" id="tooltip-step3">Настройка</div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="nav-circle-wrapper relative group cursor-pointer z-10" onclick="handleNavClick('step4', this)">
+                    <button id="btn-step4" class="nav-circle inactive w-11 h-11 rounded-full flex items-center justify-center font-bold text-base bg-white">4</button>
+                    <div class="tooltip" id="tooltip-step4">Разговор</div>
+                </div>
+                
+                <!-- PRO Button (NEW) -->
+                <div class="nav-circle-wrapper relative group cursor-pointer z-10" onclick="handleNavClick('pro', this)">
+                    <button id="btn-pro" class="nav-circle inactive w-11 h-11 rounded-full flex items-center justify-center font-bold text-base bg-white border-purple-200 text-purple-600">
+                        <span class="text-[10px] font-black tracking-tighter">PRO</span>
+                    </button>
+                    <div class="tooltip" id="tooltip-pro">Pro Фишки</div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-5 max-w-md mx-auto w-full pb-20">
+        
+        <!-- Tab: Intro -->
+        <div id="intro" class="tab-content active animate-slide">
+            <div class="ios-card text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-50 to-white opacity-50 pointer-events-none"></div>
+                
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg border border-gray-100 relative z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-[#007AFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Переводчик в ушах</h2>
+                <p class="text-gray-500 text-base leading-relaxed mb-6">Как использовать AirPods для общения с иностранцами.</p>
+                
+                <div class="bg-gray-50 p-4 rounded-xl text-left border border-gray-100 mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide opacity-70">Что нужно</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">✓</div>
+                            <span class="font-medium text-sm">iPhone (iOS 14+)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">✓</div>
+                            <span class="font-medium text-sm">Приложение «Перевод»</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="simulateNavClick('step1')" class="w-full bg-[#007AFF] text-white py-4 rounded-xl font-semibold text-lg shadow-lg active:scale-95 transition-transform">Инструкция</button>
+                    <button onclick="simulateNavClick('pro')" class="w-1/3 bg-purple-100 text-purple-700 py-4 rounded-xl font-bold text-sm shadow-sm active:scale-95 transition-transform">Pro</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Step 1 -->
+        <div id="step1" class="tab-content animate-slide">
+            <div class="ios-card">
+                <span class="text-xs font-bold text-[#007AFF] uppercase tracking-wider mb-2 block">Шаг 1 из 4</span>
+                <h2 class="text-2xl font-bold mb-4">Поиск приложения</h2>
+                
+                <div class="space-y-6">
+                    <div class="flex gap-4 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm shadow-md">1</div>
+                        <div>
+                            <p class="text-lg font-medium leading-tight">Наденьте AirPods</p>
+                            <p class="text-gray-500 text-sm mt-1">Дождитесь звука подключения.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm shadow-md">2</div>
+                        <div>
+                            <p class="text-lg font-medium leading-tight">Найдите приложение</p>
+                            <div class="mt-3 flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center shadow-sm">
+                                    <span class="text-white font-bold text-[10px] flex flex-col items-center leading-none opacity-90">
+                                        <span>A</span>
+                                        <span class="mt-0.5">文</span>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-900 font-bold block">Перевод</span>
+                                    <span class="text-xs text-gray-500">Системное приложение</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-400 text-xs mt-3">Смахните вниз по экрану для поиска, если иконки нет.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">✓</div>
+                        Ожидаемый результат
+                    </h4>
+                    <p class="text-gray-600 text-sm pl-7">Приложение открыто.</p>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="simulateNavClick('step2')" class="bg-[#007AFF] text-white px-6 py-3 rounded-full font-semibold shadow-md active:scale-95 transition-transform">Далее →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Step 2 -->
+        <div id="step2" class="tab-content animate-slide">
+            <div class="ios-card">
+                <span class="text-xs font-bold text-[#007AFF] uppercase tracking-wider mb-2 block">Шаг 2 из 4</span>
+                <h2 class="text-2xl font-bold mb-4">Выбор языков</h2>
+                
+                <p class="text-gray-600 mb-6">Выберите языки сверху экрана.</p>
+
+                <div class="bg-gray-100 p-5 rounded-2xl flex items-center justify-between mb-6 shadow-inner">
+                    <div class="text-center w-1/3">
+                        <span class="block text-[#007AFF] font-bold text-lg">Русский</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                    </div>
+                    <div class="text-center w-1/3">
+                        <span class="block text-[#007AFF] font-bold text-lg">English</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 bg-orange-50 p-3 rounded-xl border border-orange-100">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">!</div>
+                    <div>
+                        <p class="text-sm font-bold text-orange-900">Офлайн режим</p>
+                        <p class="text-orange-800 text-xs opacity-80 mt-1">Нажмите стрелку рядом с языком и выберите «Загрузить», если нет интернета.</p>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">✓</div>
+                        Ожидаемый результат
+                    </h4>
+                    <p class="text-gray-600 text-sm pl-7">Языки настроены.</p>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="simulateNavClick('step1')" class="text-gray-400 font-medium px-4 py-2 hover:text-gray-600">Назад</button>
+                    <button onclick="simulateNavClick('step3')" class="bg-[#007AFF] text-white px-6 py-3 rounded-full font-semibold shadow-md active:scale-95 transition-transform">Далее →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Step 3 -->
+        <div id="step3" class="tab-content animate-slide">
+            <div class="ios-card">
+                <span class="text-xs font-bold text-[#007AFF] uppercase tracking-wider mb-2 block">Шаг 3 из 4</span>
+                <h2 class="text-2xl font-bold mb-4">Настройка вида</h2>
+                
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-3 rounded-xl flex items-center gap-4">
+                        <span class="bg-white shadow-sm w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 font-bold text-lg shrink-0">1</span>
+                        <span class="text-sm font-medium leading-snug">Вкладка <strong>«Общение»</strong> (внизу).</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl flex items-center gap-4">
+                        <span class="bg-white shadow-sm w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 font-bold text-lg shrink-0">2</span>
+                        <span class="text-sm font-medium leading-snug">Кнопка <strong>«...»</strong> слева внизу.</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl flex items-center gap-4">
+                        <span class="bg-white shadow-sm w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 font-bold text-lg shrink-0">3</span>
+                        <span class="text-sm font-medium leading-snug">Режим <strong>«Лицом к лицу»</strong>.</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl flex items-center gap-4">
+                        <span class="bg-red-500 shadow-md w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        </span>
+                        <span class="text-sm font-medium leading-snug text-blue-900">Включите <strong>Микрофон</strong>.</span>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">✓</div>
+                        Ожидаемый результат
+                    </h4>
+                    <p class="text-gray-600 text-sm pl-7">Экран разделен. Микрофон активен.</p>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="simulateNavClick('step2')" class="text-gray-400 font-medium px-4 py-2 hover:text-gray-600">Назад</button>
+                    <button onclick="simulateNavClick('step4')" class="bg-[#007AFF] text-white px-6 py-3 rounded-full font-semibold shadow-md active:scale-95 transition-transform">Далее →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Step 4 -->
+        <div id="step4" class="tab-content animate-slide">
+            <div class="ios-card">
+                <span class="text-xs font-bold text-[#007AFF] uppercase tracking-wider mb-2 block">Финал</span>
+                <h2 class="text-2xl font-bold mb-4">Разговор</h2>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-xl p-5 mb-5 shadow-sm">
+                    <div class="flex items-start gap-3 mb-4">
+                         <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">Вы</div>
+                         <p class="text-gray-700 text-sm leading-relaxed">Говорите. Телефон переводит и <strong>громко произносит</strong> фразу для иностранца.</p>
+                    </div>
+                    <div class="w-full h-px bg-blue-100 mb-4"></div>
+                    <div class="flex items-start gap-3">
+                         <div class="mt-1 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs font-bold">Он</div>
+                         <p class="text-gray-700 text-sm leading-relaxed">Отвечает. Siri переводит ответ и <strong>шепчет вам в AirPods</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">✓</div>
+                        Успех
+                    </h4>
+                    <p class="text-gray-600 text-sm pl-7">Свободное общение.</p>
+                </div>
+
+                <div class="mt-8 flex justify-between items-center">
+                    <button onclick="simulateNavClick('intro')" class="text-[#007AFF] font-medium text-sm hover:underline">В начало</button>
+                    <button onclick="simulateNavClick('pro')" class="text-purple-600 font-bold text-sm bg-purple-50 px-4 py-2 rounded-full">У меня версия Pro →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab: PRO Features (NEW) -->
+        <div id="pro" class="tab-content animate-slide">
+            <div class="ios-card border-2 border-purple-100">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold text-purple-600 uppercase tracking-wider block">Продвинутый уровень</span>
+                    <div class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded">Pro / Pro 2</div>
+                </div>
+                
+                <h2 class="text-2xl font-bold mb-6">Секретные фишки</h2>
+
+                <!-- Myth Buster -->
+                <div class="bg-red-50 p-4 rounded-xl border border-red-100 mb-6">
+                     <h3 class="font-bold text-red-900 mb-1 text-sm">Про чип H3</h3>
+                     <p class="text-xs text-red-800 leading-relaxed">
+                        Модели "AirPods Pro 3" с чипом "H3" официально <strong>не существует</strong>. Это маркетинговое название для копий. 
+                        <br><br>
+                        Но не расстраивайтесь! Даже копии работают как обычные наушники, поэтому <strong>инструкция выше (шаги 1-4) подходит и для вас.</strong>
+                     </p>
+                </div>
+                
+                <h3 class="font-bold text-gray-900 mb-3 text-lg">Если у вас Pro 2 (H2):</h3>
+
+                <!-- Feature 1 -->
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-6 h-6 rounded bg-gray-200 flex items-center justify-center">👂</div>
+                        <h4 class="font-bold text-sm">Режим прозрачности</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 pl-8 mb-2">Зажмите ножку наушника, пока не услышите «дзынь». Теперь вы слышите улицу через микрофоны. Это помогает не кричать при разговоре.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-6 h-6 rounded bg-gray-200 flex items-center justify-center">🗣</div>
+                        <h4 class="font-bold text-sm">Распознавание разговора</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 pl-8">
+                        <em>Настройки → AirPods → Аудио.</em><br>
+                        Включите эту функцию. Когда вы начнете говорить с иностранцем, наушники сами сделают музыку тише и усилят его голос.
+                    </p>
+                </div>
+
+                <div class="result-box pro-box pro-bg">
+                    <h4 class="font-bold text-purple-700 text-sm mb-1 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs">★</div>
+                        Ожидаемый результат
+                    </h4>
+                    <p class="text-purple-900 text-sm pl-7">
+                        Вы отлично слышите свой голос и собеседника, не вынимая наушники из ушей.
+                    </p>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="simulateNavClick('step4')" class="text-gray-400 font-medium text-sm mr-4">← Назад к шагам</button>
+                    <button onclick="simulateNavClick('intro')" class="text-[#007AFF] font-medium text-sm">В начало</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let lastTappedId = null;
+
+        function handleNavClick(tabId, element) {
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const tooltip = document.getElementById(`tooltip-${tabId}`);
+            const isActiveTab = document.getElementById(tabId).classList.contains('active');
+
+            if (!isTouch) {
+                switchTab(tabId);
+                return;
+            }
+
+            if (isActiveTab) return;
+
+            if (lastTappedId !== tabId) {
+                hideAllTooltips();
+                tooltip.classList.add('show-mobile');
+                lastTappedId = tabId;
+            } else {
+                switchTab(tabId);
+                lastTappedId = null;
+                hideAllTooltips();
+            }
+        }
+
+        function simulateNavClick(tabId) {
+            switchTab(tabId);
+        }
+
+        function hideAllTooltips() {
+            document.querySelectorAll('.tooltip').forEach(t => t.classList.remove('show-mobile'));
+        }
+
+        document.addEventListener('touchstart', function(e) {
+            if (!e.target.closest('.nav-circle-wrapper')) {
+                hideAllTooltips();
+                lastTappedId = null;
+            }
+        });
+
+        function switchTab(tabId) {
+            // Logic for active tab
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            // Logic for buttons style
+            const buttons = document.querySelectorAll('.nav-circle');
+            buttons.forEach(btn => {
+                // Reset all
+                btn.classList.remove('active');
+                btn.classList.add('inactive');
+                
+                // Keep Pro styling distinct if inactive
+                if(btn.id === 'btn-pro') {
+                   btn.classList.add('text-purple-600', 'border-purple-200'); 
+                   btn.classList.remove('bg-[#007AFF]', 'text-white', 'border-[#007AFF]');
+                }
+            });
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.classList.remove('inactive');
+                
+                // Specific active style for PRO button
+                if(tabId === 'pro') {
+                    activeBtn.style.backgroundColor = '#AF52DE'; // Purple
+                    activeBtn.style.color = 'white';
+                    activeBtn.classList.remove('text-purple-600', 'border-purple-200');
+                } else {
+                    // Reset inline styles for other buttons
+                     activeBtn.style.backgroundColor = '';
+                     activeBtn.style.color = '';
+                }
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
