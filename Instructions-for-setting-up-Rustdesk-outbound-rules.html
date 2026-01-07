@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Инструкция: Исходящее правило</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h2 {
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 5px;
+            color: #333;
+        }
+        h3 {
+            color: #0056b3;
+            margin-top: 30px;
+        }
+        ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, "Courier New", monospace;
+        }
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .final-step {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Инструкция: Создание ИСХОДЯЩЕГО правила (Последний шаг)</h2>
+
+    <p>Это наш последний технический вариант. Мы разрешим службе RustDesk "звонить" наружу.</p>
+
+    <h3>Шаг 1: Откройте "Брандмауэр в режиме повышенной безопасности"</h3>
+    <ol>
+        <li>Нажмите кнопку <strong>"Пуск"</strong>.</li>
+        <li>Начните вводить: <code>Брандмауэр</code></li>
+        <li>В появившемся списке выберите <strong>"Брандмауэр Защитника Windows в режиме повышенной безопасности"</strong>.</li>
+    </ol>
+
+    <h3>Шаг 2: Создайте правило для ИСХОДЯЩЕГО подключения</h3>
+    <ol>
+        <li>В открывшемся окне слева нажмите на <strong>"Правила для ИСХОДЯЩЕГО подключения"</strong>.</li>
+        <li>В колонке <strong>"Действия"</strong> (она находится справа) нажмите <strong>"Создать правило..."</strong>.</li>
+        <li>Откроется "Мастер создания правила". Далее по шагам в мастере:</li>
+        <li>
+            <strong>Тип правила:</strong> Выберите <strong>"Для программы"</strong> и нажмите "Далее".
+        </li>
+        <li>
+            <strong>Программа:</strong>
+            <ul>
+                <li>Выберите <strong>"Путь к программе:"</strong>.</li>
+                <li>Нажмите кнопку <strong>"Обзор..."</strong>.</li>
+                <li>Перейдите в папку <code>C:\Program Files\RustDesk</code> (или где он у вас установлен).</li>
+                <li>Выберите файл <strong><code>rustdesk-service.exe</code></strong> и нажмите "Открыть".</li>
+                <li>Нажмите "Далее".</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Действие:</strong> Выберите <strong>"Разрешить подключение"</strong>. Нажмите "Далее".
+        </li>
+        <li>
+            <strong>Профиль:</strong> Убедитесь, что стоят <strong>все три галочки</strong> (Доменный, Частный, Публичный). Нажмите "Далее".
+        </li>
+        <li>
+            <strong>Имя:</strong> Введите любое понятное имя, например: <code>RustDesk Service (Исходящее)</code> и нажмите <strong>"Готово"</strong>.
+        </li>
+    </ol>
+
+    <h3>Шаг 3: Финальный перезапуск службы</h3>
+    <div class="warning">
+        <strong>Это САМЫЙ ВАЖНЫЙ шаг:</strong> После создания этого правила, служба должна его "прочитать".
+    </div>
+    <ol>
+        <li>Нажмите "Пуск" и введите <code>services.msc</code>, затем нажмите Enter.</li>
+        <li>Найдите в списке <strong>"RustDesk"</strong>.</li>
+        <li>Нажмите на него правой кнопкой мыши и выберите <strong>"Перезапустить"</strong>.</li>
+    </ol>
+
+    <div class="final-step">
+        После этого, пожалуйста, попробуйте подключиться еще раз.
+    </div>
+
+</body>
+</html>
